@@ -28,9 +28,9 @@ from .models import (
     Refund,
 )
 
-from .forms import CheckoutForm, RefundForm
+from .forms import RefundForm
 from users.models import UserProfile
-from users.forms import ProfileEditForm
+from users.forms import ProfileForm
 
 
 from .filter import ProductFilter
@@ -51,6 +51,8 @@ def is_valid_form(values):
 		if field == '':
 			valid = False
 	return valid
+
+
 
 
 def consulta(id):
@@ -84,7 +86,7 @@ class HomePageView(ListView):
 class ProfilePageView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 	model = UserProfile
 	success_url = reverse_lazy('shop:home')
-	form_class = ProfileEditForm
+	form_class = ProfileForm
 	success_message = "Profile updated successfully"
 	template_name = 'account/profile.html'
 
@@ -104,7 +106,7 @@ class ProfilePageView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 		return super().form_valid(form)
 
 	def get_context_data(self, *args, **kwargs):
-		form = ProfileEditForm()
+		form = ProfileForm()
 		context = super().get_context_data(**kwargs)
 
 		try:
@@ -257,31 +259,24 @@ class CheckoutView(View):
 	def get(self, *args, **kwargs):
 		try:
 			order = Order.objects.get(user=self.request.user, ordered=False)
-			form = CheckoutForm()
+			form = ProfileForm()
 			context = {
-				'form': form,
 				'order': order,
 			}
 
-			shipping_address_qs = UserProfile.objects.filter(
-				user=self.request.user,
-				address_type='S',
-				default=True
-			)
+			user_profile_address = UserProfile.objects.get(user=self.request.user)
 
-			if shipping_address_qs.exists():
-				context.update(
-					{'default_shipping_address': shipping_address_qs[0]})
+			if user_profile_address.shipping_address == None:
+				user_profile_address = False
 
-			billing_address_qs = UserProfile.objects.filter(
-				user=self.request.user,
-				address_type='B',
-				default=True
-			)
-			
-			if billing_address_qs.exists():
+			if user_profile_address:
 				context.update(
-					{'default_billing_address': billing_address_qs[0]})
+					{'user_profile_address': user_profile_address}
+				)
+			else:
+				context.update(
+					{'form': form}
+				)
 
 			return render(self.request, "shop/checkout.html", context)
 		except ObjectDoesNotExist:

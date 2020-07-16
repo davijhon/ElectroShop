@@ -33,7 +33,7 @@ class CustomUserChangeForm(UserChangeForm):
 		fields = ('email', 'username',)
 
 
-class ProfileEditForm(forms.ModelForm):
+class ProfileForm(forms.ModelForm):
 	shipping_address = forms.CharField(widget=forms.TextInput(attrs={
 		'placeholder':'Street address',
 		'class': 'form-control',
@@ -71,12 +71,13 @@ class ProfileEditForm(forms.ModelForm):
 		'class': 'form-control',
 	}))
 	
-	# same_address_billing = forms.BooleanField(widget=forms.CheckboxInput(attrs={
-	# 	'input_type': 'checkbox',
-	# 	'class': 'custom-checkbox'	
-	# 	#'class': 'custom-control-input',
-		
-	# }))
+	same_address_billing = forms.BooleanField(required=False)
+	
+	#set_default_shipping = forms.BooleanField(required=False)
+	#set_default_billing = forms.BooleanField(required=False)
+
+	# payment_option = forms.ChoiceField(
+	# 	widget=forms.RadioSelect, choices=PAYMENT_CHOICES)
 
 	class Meta:
 		model = UserProfile

@@ -5,10 +5,11 @@ from django_countries.fields import CountryField
 from django_countries.widgets import CountrySelectWidget
 
 
-ADDRESS_CHOICES = (
 
-	('B', 'Billing'),
-	('S', 'Shipping'),
+PAYMENT_CHOICES = (
+
+	('S', 'Stripe'),
+	('P', 'Paypal'),
 
 )
 
@@ -21,18 +22,22 @@ class UserProfile(models.Model):
 	user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
 	shipping_address = models.CharField(max_length=255, blank=True, null=True)
 	shipping_address2 = models.CharField(max_length=255, blank=True, null=True)
-	shipping_country = CountryField(multiple=False)
+	shipping_country = CountryField(multiple=False, blank=True, null=True)
 	shipping_zip = models.CharField(max_length=50, blank=True, null=True)
-
 
 	billing_address = models.CharField(max_length=255, blank=True, null=True)
 	billing_address2 = models.CharField(max_length=255, blank=True, null=True)
 	billing_country = CountryField(multiple=False, blank=True, null=True)
 	billing_zip = models.CharField(max_length=255, blank=True, null=True)
-	address_type = models.CharField(max_length=1, choices=ADDRESS_CHOICES )
+
+	#address_type = models.CharField(max_length=1, choices=ADDRESS_CHOICES )
 	default = models.BooleanField(default=False)
 	same_address_billing = models.BooleanField(default=False)
 
+	set_default_shipping = models.BooleanField(default=False)
+	set_default_billing = models.BooleanField(default=False)
+
+	payment_option = models.CharField(max_length=1, choices=PAYMENT_CHOICES)
 
 	def __str__(self):
 		return self.user.username
