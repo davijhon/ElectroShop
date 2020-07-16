@@ -73,11 +73,11 @@ class ProfileForm(forms.ModelForm):
 	
 	same_address_billing = forms.BooleanField(required=False)
 	
-	#set_default_shipping = forms.BooleanField(required=False)
-	#set_default_billing = forms.BooleanField(required=False)
+	set_default_shipping = forms.BooleanField(required=False)
+	set_default_billing = forms.BooleanField(required=False)
 
-	# payment_option = forms.ChoiceField(
-	# 	widget=forms.RadioSelect, choices=PAYMENT_CHOICES)
+	payment_option = forms.ChoiceField(
+		widget=forms.RadioSelect, choices=PAYMENT_CHOICES)
 
 	class Meta:
 		model = UserProfile
