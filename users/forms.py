@@ -76,13 +76,13 @@ class ProfileForm(forms.ModelForm):
 	set_default_shipping = forms.BooleanField(required=False)
 	set_default_billing = forms.BooleanField(required=False)
 
-	payment_option = forms.ChoiceField(
+	payment_option = forms.ChoiceField(required=False,
 		widget=forms.RadioSelect, choices=PAYMENT_CHOICES)
 
 	class Meta:
 		model = UserProfile
 		fields = ('shipping_address', 'shipping_address2', 'shipping_country', 'shipping_zip',
 					'billing_address', 'billing_address2', 'billing_country', 'billing_zip',
-					'same_address_billing',)
+					'same_address_billing', 'payment_option')
 
 

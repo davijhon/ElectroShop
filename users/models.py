@@ -30,14 +30,8 @@ class UserProfile(models.Model):
 	billing_country = CountryField(multiple=False, blank=True, null=True)
 	billing_zip = models.CharField(max_length=255, blank=True, null=True)
 
-	#address_type = models.CharField(max_length=1, choices=ADDRESS_CHOICES )
-	default = models.BooleanField(default=False)
 	same_address_billing = models.BooleanField(default=False)
-
-	set_default_shipping = models.BooleanField(default=False)
-	set_default_billing = models.BooleanField(default=False)
-
-	payment_option = models.CharField(max_length=1, choices=PAYMENT_CHOICES)
+	payment_option = models.CharField(max_length=1, choices=PAYMENT_CHOICES, blank=True, null=True)
 
 	def __str__(self):
 		return self.user.username

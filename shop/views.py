@@ -101,9 +101,9 @@ class ProfilePageView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 			raise PermissionDenied
 		return super().dispatch(request, *args, **kwargs)
 
-	def form_valid(self, form):
-		form.instance.user = self.request.user
-		return super().form_valid(form)
+	# def form_valid(self, form):
+	# 	form.instance.user = self.request.user
+	# 	return super().form_valid(form)
 
 	def get_context_data(self, *args, **kwargs):
 		form = ProfileForm()
