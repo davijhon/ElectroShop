@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load thumbnail %}
+{% load static %}
+
+
+{% block content %}
+
+    <div class="site-section">
+      <div class="container">
+
+        <div class="row mb-5">
+          <div class="col-md-9 order-2">
+
+            <div class="row">
+              <div class="col-md-12 mb-5">
+                <div class="float-md-left mb-4"><h2 class="text-black h5">Shop All</h2></div>
+                <div class="d-flex">
+                </div>
+              </div>
+            </div>
+            <div class="row mb-5">
+			{% for product in object_list  %}
+				{% thumbnail product.image "479" as im %}
+					<div class="col-sm-6 col-lg-4 mb-4" data-aos="fade-up">
+						<div class="block-4 text-center border">
+						<figure class="block-4-image">
+							<a href="{{ product.get_absolute_url }}"><img src="{% if im %}{{ im.url }}{% else %}{% static 'images/no_image.png' %}{% endif %}"  alt="Image placeholder" class="img-fluid"></a>
+						</figure>
+						<div class="block-4-text p-4">
+							<h3><a href="{{ product.get_absolute_url }}">{{ product.name }}</a></h3>
+							<p class="mb-0">Finding perfect t-shirt</p>
+							<p class="text-primary font-weight-bold">${{ product.price }}</p>
+						</div>
+						</div>
+					</div>
+				{% endthumbnail %} 
+            {% endfor %}    
+		</div>
+
+			<div class="row" data-aos="fade-up">
+				<div class="col-md-12 text-center">
+					<div class="site-block-27">
+						<ul>
+							{% if page_obj.has_previous %}
+								<li><a href="?page={{ page_obj.previous_page_number }}">&lt;</a></li>
+							{% endif %}
+
+							{% if page_obj.number|add:'-4' > 1 %}
+								<li><a href="?page={{ page_obj.number|add:'-5' }}">&hellip;</a></li>
+							{% endif %}
+
+							{% for i in page_obj.paginator.page_range %}
+								{% if page_obj.number == i %}
+									<li class="active"><span>{{ i }}</span></li>
+								{% elif i > page_obj.number|add:'-5' and i < page_obj.number|add:'5' %}
+									<li><a href="?page={{ i }}">{{ i }}</a></li>
+								{% endif %}
+							{% endfor %}
+
+							{% if page_obj.paginator.num_pages > page_obj.number|add:'4' %}
+								<li><a href="?page={{ page_obj.number|add:'5' }}">&hellip;</a></li>
+							{% endif %}
+
+							{% if page_obj.has_next %}
+								<li><a href="?page={{ page_obj.next_page_number }}">&gt;</a></li>
+							{% endif %}
+						</ul>
+					</div>
+				</div>
+				</div>
+			</div>
+        <div class="col-md-3 order-1 mb-5 mb-md-0">
+					<div class="side-bar p-sm-4 p-3">
+						<div class="search-hotel border-bottom py-2">
+              <h3 class="agileits-sear-head mb-3">Filters</h3>
+              <form method="get">
+                {{ filter.form.as_p }}
+				<input type="submit" class="btn btn-sm btn-primary" value="Filter">
+              </form>
+
+						<div class="range border-bottom py-2">
+
+						</div>
+						<!-- //price -->
+						<div class="left-side py-2">
+							<h3 class="agileits-sear-head mb-3">Availability</h3>
+							<ul>
+								<li>
+									<input type="checkbox" class="checked">
+									<span class="span">Exclude Out of Stock</span>
+								</li>
+							</ul>
+						</div>
+						<!-- //arrivals -->
+					</div>
+					<!-- //product right -->
+				</div>        
+      </div>
+    </div>
+
+{% endblock content %}

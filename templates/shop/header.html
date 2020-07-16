@@ -1,0 +1,102 @@
+{% load static %}
+
+     <div class="site-navbar-top">
+        <div class="container">
+          <div class="row align-items-center">
+
+            <div class="col-6 col-md-4 order-2 order-md-1 site-search-icon text-left">
+              <form action="" class="site-block-top-search">
+                <span class="icon icon-search2"></span>
+                <input type="text" class="form-control border-0" placeholder="Search">
+              </form>
+            </div>
+
+            <div class="col-12 mb-3 mb-md-0 col-md-4 order-1 order-md-2 text-center">
+              <div class="site-logo">
+                <a href="{% url 'shop:home' %}" class="js-logo-clone">ElectroShop</a>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-4 order-3 order-md-3 text-right">
+              <div class="site-top-icons">
+                <ul>
+                  {% if user.is_authenticated %}
+                    <li><a href="#"><span class="icon icon-person"></span></a></li>
+                    <li><a href="#"><span class="icon icon-heart-o"></span></a></li>
+                    <li>
+                      <a href="cart.html" class="site-cart">
+                        <span class="icon icon-shopping_cart"></span>
+                        <span class="count">2</span>    
+                      </a>         
+                    </li>
+                    <li class="ml-4">
+                      Hello, {{ user.username }}
+                    </li>
+                    <li>
+                      <a class="btn btn-outline-secondary ml-4"href="{% url 'account_logout' %}">Log Out</a>
+                    </li>
+                  {% else %}  
+                    <li>
+                      <form class="form-inline ml-auto">
+                            <a href="{% url 'account_login' %}" class="btn btn-outline-secondary">Log In</a>
+                            <a href="{% url 'account_signup' %}" class="btn btn-primary text-white ml-2">Sign up</a>
+                        </form>
+                    </li>
+                  {% endif %} 
+                  <li class="d-inline-block d-md-none ml-md-0"><a href="#" class="site-menu-toggle js-menu-toggle"><span class="icon-menu"></span></a></li>
+                </ul>
+              </div> 
+            </div>
+
+          </div>
+        </div>
+      </div> 
+      <nav class="site-navigation text-right text-md-center" role="navigation">
+        <div class="container">
+          <ul class="site-menu js-clone-nav d-none d-md-block">
+            <li class="has-children active">
+              <a href="{% url 'shop:home' %}">Home</a>
+              <ul class="dropdown">
+                <li><a href="#">Menu One</a></li>
+                <li><a href="#">Menu Two</a></li>
+                <li><a href="#">Menu Three</a></li>
+                <li class="has-children">
+                  <a href="#">Sub Menu</a>
+                  <ul class="dropdown">
+                    <li><a href="#">Menu One</a></li>
+                    <li><a href="#">Menu Two</a></li>
+                    <li><a href="#">Menu Three</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
+            <li class="has-children">
+              <a href="about.html">Categorias</a>
+              <ul class="dropdown">
+                <li><a href="#">Smartphone</a></li>
+                <li><a href="#">PC</a></li>
+                <li><a href="#">Laptops</a></li>
+              </ul>
+            </li>
+            <li><a href="shop.html">Productos</a></li>
+            <li><a href="#">Lo Nuevo</a></li>
+            <li><a href="contact.html">Contacto</a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="site-blocks-cover" style="background-image: url({% static 'images/electroshop_1.jpg' %});" data-aos="fade">
+      <div class="container">
+        <div class="row align-items-start align-items-md-center justify-content-end">
+          <div class="col-md-5 text-center text-md-left pt-5 pt-md-0">
+            <h1 class="mb-2">Encuentra el tuyo.</h1>
+            <div class="intro-text text-center text-md-left">
+              <p class="mb-4">Tu Smartphone preferido a un click.</p>
+              <p>
+                <a href="{% url 'shop:categories' slug=smartphone %}" class="btn btn-sm btn-primary text-white">¡Compra ya!</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
