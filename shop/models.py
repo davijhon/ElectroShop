@@ -86,7 +86,6 @@ class Product(models.Model):
 									related_name='products',
 									on_delete=models.CASCADE)
 	brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
-	id = models.AutoField(primary_key = True)
 	name = models.CharField(max_length=200, db_index=True)
 	slug = models.SlugField(max_length=200, db_index=True)
 	image = models.ImageField(upload_to='products/%Y/%m/%d',
@@ -139,8 +138,7 @@ class OrderItem(models.Model):
 	def get_final_price(self):
 		return self.get_total_items_price()
 
-#related_name='billing_address'
-#related_name='shipping_address'
+
 class Order(models.Model):
 	user = models.ForeignKey(get_user_model(),
 							 on_delete=models.CASCADE)
@@ -149,18 +147,21 @@ class Order(models.Model):
 	start_date = models.DateTimeField(auto_now_add=True)
 	ordered_date = models.DateTimeField()
 	ordered = models.BooleanField(default=False)
-	# billing_address = models.ForeignKey(
-	# 	UserProfile, on_delete=models.SET_NULL, blank=True, null=True)
-	# shipping_address = models.ForeignKey(
-	# 	UserProfile, on_delete=models.SET_NULL, blank=True, null=True)
+	shipping_billing_info = models.ForeignKey(
+		UserProfile, on_delete=models.SET_NULL, blank=True, null=True)
 	payment = models.ForeignKey(
 		'Payment', on_delete=models.SET_NULL, blank=True, null=True,
 	)
 
+	user_billing_same_shipping = models.BooleanField(default=False)
 	being_delivered = models.BooleanField(default=False)
 	received = models.BooleanField(default=False)
 	refund_request = models.BooleanField(default=False)
 	refund_granted = models.BooleanField(default=False)
+
+
+	class Meta:
+		ordering = ('-start_date',)
 
 
 	def __str__(self):
