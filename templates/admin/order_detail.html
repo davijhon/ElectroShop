@@ -1,0 +1,82 @@
+{% extends 'admin/base_site.html' %}
+{% load static %}
+
+
+{% block title %}
+    Order {{ order.id }} {{ block.super }}
+{% endblock %}
+
+
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">Home</a> &rsaquo;
+        <a href="{% url 'admin:shop_order_changelist' %}">Orders</a> &rsaquo;
+        <a href="{% url 'admin:shop_order_change' order.id %}">Order {{ order.id }}</a> &rsaquo; Detail
+    </div>
+{% endblock breadcrumbs %}
+
+{% block content %}
+<h1>Order {{ order.id }}</h1>
+<ul class="object-tools">
+    <li>
+        <a href="#" onclick="window.print();">Print order</a>
+    </li>
+</ul>
+<table>
+    <tr>
+        <th>Created</th>
+        <td>{{ order.start_date }}</td> 
+    </tr>
+    <tr>
+        <th>Customer</th>
+        <td>{{ user_info.user.username }}</td>
+        <!-- <td>{{ order.first_name }} {{ order.last_name }}</td> -->
+    </tr>
+    <tr>
+        <th>E-mail</th>
+        <td><a href="mailto:{{ user_info.user.email }}">{{ user_info.user.email }}</a></td>
+    </tr>
+    <tr>
+        <th>Address</th>
+        <td>{{user_info.shipping_address }}, {{ user_info.shipping_address2 }}, {{ user_info.shipping_country }}</tr>
+    </tr>
+    <tr>
+        <th>Total amount</th>
+        <td>${{ order.get_total }}</td>
+    </tr>
+    <tr>
+        <th>Status</th>
+        <td>{% if order.ordered %}Paid{% else %}Pending payment{% endif %}</td>
+    </tr>
+</table>
+
+<div class="module">
+    <div class="tabular inline-related last-related">
+        <table>
+            <h2>Items bought</h2>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items.all %}
+                    <tr class="row{% cycle '1' '2' %}">
+                        <td>{{ item.item.name }}</td>
+                        <td class="num">${{ item.item.price }}</td>
+                        <td class="num">{{ item.quantity }}</td>
+                        <td class="num">${{ item.get_final_price }}</td>
+                    </tr>
+                {% endfor %}
+                <tr class="total">
+                    <td colspan="3">Total</td>
+                    <td class="num">${{ order.get_total }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
