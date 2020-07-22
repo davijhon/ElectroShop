@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.db import models
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 
-#Address,
+
 from .models import (
 	Product, OrderItem, Order,
 	 Payment, Refund, 
@@ -10,6 +11,11 @@ from .models import (
 	Storage, Brand, Promo
 )
 
+
+def order_detail(obj):
+	return mark_safe('<a href="{}">View</a>'.format(
+		reverse('shop:admin_order_detail', args=[obj.id])
+	))
 
 
 def make_refund_accepted(modeladmin, request, queryset):
@@ -56,11 +62,10 @@ class ProductAdmin(admin.ModelAdmin):
 	list_editable = ['price', 'available']
 	prepopulated_fields = {'slug': ('name',)}
 
-
+@admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-	#'billing_address',
-#'shipping_address',  
 	list_display = [
+			'id',
 			'user', 
 			'ordered', 
 			'being_delivered',
@@ -68,6 +73,9 @@ class OrderAdmin(admin.ModelAdmin):
 			'refund_request',
 			'refund_granted',
 			'payment',
+			'shipping_billing_info',
+			'user_billing_same_shipping',
+			order_detail,
 	]
 	list_filter = [
 			'user', 
@@ -75,13 +83,12 @@ class OrderAdmin(admin.ModelAdmin):
 			'being_delivered',
 			'received',
 			'refund_request',
-			'refund_granted'
+			'refund_granted',
 	]
-	# 'billing_address',
-	# 		'shipping_address', 
+
 	list_display_links = [
-			'user', 
-			   
+			#'user', 
+			'shipping_billing_info',
 			'payment',
 	]
 	search_fields = [
@@ -90,31 +97,9 @@ class OrderAdmin(admin.ModelAdmin):
 	]
 	actions = [make_refund_accepted]
 
-# class AddressAdmin(admin.ModelAdmin):
-# 	list_display = [
-# 		'user',
-# 		'street_address',
-# 		'apartment_address',
-# 		'country',
-# 		'zip_code',
-# 		#'address_type',
-# 		'default',
-# 	]
-# 	list_filter = [
-# 		'default',
-# 		#'address_type',
-# 		'country',
-# 	]
-# 	search_fields = [
-# 		'user',
-# 		'street_address',
-# 		'apartment_address',
-# 		'zip_code',
-# 	]
 
-admin.site.register(Order, OrderAdmin)
+#admin.site.register(OrderAdmin)
 admin.site.register(OrderItem)
 admin.site.register(Payment)
 admin.site.register(Refund)
-#admin.site.register(Address, AddressAdmin)
 admin.site.register(Promo)
