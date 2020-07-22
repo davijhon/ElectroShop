@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 #from django.views.decorators.cache import cache_page
 from django.contrib.auth.models import AnonymousUser
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -44,7 +45,6 @@ stripe.api_key = settings.STRIPE_TEST_SECRET_KEY
 def create_ref_code():
 	return ''.join(random.choices(string.ascii_lowercase + string.digits, k=9))
 
-
 def is_valid_form(values):
 	valid = True
 	for field in values:
@@ -52,15 +52,41 @@ def is_valid_form(values):
 			valid = False
 	return valid
 
-
-
-
 def consulta(id):
 	try:
 		return Product.objects.get(id=id)
 	except:
 		return None
 
+
+
+
+def AdminOrderDetail(request, order_id):
+	order = get_object_or_404(Order, id=order_id)
+	user_id = order.user_id
+	user_info = UserProfile.objects.get(user_id=user_id)
+	return render(request,
+		'admin/order_detail.html',
+		{'order': order,
+		'user_info': user_info,})
+
+
+
+#@staff_member_required
+# class AdminOrderDetail(View):
+	
+# 	def get(self, *args, **kwargs):
+# 		#order = Order.objects.get(user=self.request.user, ordered=False)
+# 		order = get_object_or_404(Order, id=order_id)
+		
+# 		user_id = order.user_id
+# 		user_info = UserProfile.objects.get(user_id=user_id)
+# 		context = {
+# 			'order': order,
+# 			'user_info': user_info,
+
+# 		}
+# 		return render(self.request, 'admin/order_detail.html', context)
 
 
 class HomePageView(ListView):
@@ -256,11 +282,13 @@ class PaymentView(View):
 
 
 class CheckoutView(View):
+
 	def get(self, *args, **kwargs):
 		try:
 			order = Order.objects.get(user=self.request.user, ordered=False)
 			form = ProfileForm()
 			context = {
+				'form': form,
 				'order': order,
 			}
 
@@ -285,35 +313,41 @@ class CheckoutView(View):
 		
 
 	def post(self, *args, **kwargs):
-		form = CheckoutForm(self.request.POST or None)
+		form = ProfileForm(self.request.POST or None)
 
 		try:
 			order = Order.objects.get(user=self.request.user, ordered=False)
+			user_profile_address = UserProfile.objects.get(user=self.request.user)
+
+			if user_profile_address.shipping_address == None:
+				user_profile_address = False
 
 			if form.is_valid():
+				order_items = order.items.all()
 
-				use_default_shipping = form.cleaned_data.get(
-					'use_default_shipping')
-				if use_default_shipping:
-					#print("Using the default shipping address")TEST
-					address_qs = UserProfile.objects.filter(
-						user=self.request.user,
-						address_type='S',
-						default=True
-					)
+				if user_profile_address and len(order_items) != 0:
+					# If user have address info in his profile
+					print('User will be used their profile info')
+					order.shipping_billing_info = user_profile_address
+					order.user_billing_same_shipping = user_profile_address.same_address_billing
+					order.save()
 
-					if address_qs.exists():
-						shipping_address = address_qs[0]
-						order.shipping_address = shipping_address
-						order.save()
-					else:
-						messages.info(
-							self.request, "No default shipping address available")
-						return redirect('shop:checkout')
+					payment_option = form.cleaned_data.get('payment_option')
+					# if payment_option == 'S':
+					# 	return redirect('shop:payment', payment_option='stripe')
+					# elif payment_option == 'P':
+					# 	return redirect('shop:payment', payment_option='paypal')
+					# else:
+					# 	messages.warning(self.request, "Invalid payment option selected")
+					# 	return redirect('shop:checkout')
+				elif user_profile_address and len(order_items) == 0:
+					messages.warning(self.request, "You do not have an active order")
+					return redirect("shop:cart")
+
 
 				else:
-					#print("User is entering a new shipping address")TEST
-					shipping_address1 = form.cleaned_data.get(
+					print("User is entering a new shipping address")
+					shipping_address = form.cleaned_data.get(
 						'shipping_address')
 					shipping_address2 = form.cleaned_data.get(
 						'shipping_address2')
@@ -322,93 +356,79 @@ class CheckoutView(View):
 					shipping_zip = form.cleaned_data.get(
 						'shipping_zip')
 
-					if is_valid_form([shipping_address1, shipping_country, shipping_zip]):
-						shipping_address = UserProfile(
-							user=self.request.user,
-							street_address=shipping_address1,
-							apartment_address=shipping_address2,
-							country=shipping_country,
-							zip_code=shipping_zip,
-							address_type='S'
-						)
-						shipping_address.save()
+					if is_valid_form([shipping_address, shipping_country, shipping_zip,]):
+						shipping_billing_info = UserProfile.objects.get(user=self.request.user)
+						shipping_billing_info.shipping_address = shipping_address
+						shipping_billing_info.shipping_address2 = shipping_address2
+						shipping_billing_info.shipping_country = shipping_country
+						shipping_billing_info.shipping_zip = shipping_zip
+						#shipping_billing_info.save() 
 
-						order.shipping_address = shipping_address
+						order.shipping_billing_info = shipping_billing_info
 						order.save()
-
-						set_default_shipping = form.cleaned_data.get(
-							'set_default_shipping')
-						if set_default_shipping:
-							shipping_address.default = True
-							shipping_address.save()
 
 					else:
 						messages.info(
-							self.request, "Please fill in the required= shipping address fields")
-
-				use_default_billing = form.cleaned_data.get(
-					'use_default_billing')
-				same_billing_address = form.cleaned_data.get(
-					'same_billing_address')
-
-				if same_billing_address:
-					billing_address = shipping_address
-					billing_address.pk = None
-					billing_address.save()
-					billing_address.address_type = 'B'
-					billing_address.save()
-					order.billing_address = billing_address
-					order.save()
-
-				elif use_default_billing:
-					#print('Using the fault billing address')TEST
-					address_qs = UserProfile.objects.filter(
-						user=self.request.user,
-						address_type='B',
-						default=True
-					)
-					if address_qs.exists():
-						billing_address = address_qs[0]
-						order.billing_address = billing_address
-						order.save()
-					else:
-						message.info(
-							self.request, "No default billing address available")
+							self.request, "Please fill in the required shipping address fields")
 						return redirect('shop:checkout')
+
+
+				same_billing_address = form.cleaned_data.get(
+							'same_billing_address')
+				set_default_shipping = form.cleaned_data.get(
+							'set_default_shipping')
+
+				if set_default_shipping:
+					user_profile_address = UserProfile.objects.get(user=self.request.user)
+					user_profile_address.shipping_address = shipping_address
+					user_profile_address.shipping_address2 = shipping_address2
+					user_profile_address.shipping_country = shipping_country
+					user_profile_address.shipping_zip = shipping_zip
+					user_profile_address.save()
+				
+				if same_billing_address:
+					shipping_billing_info = UserProfile.objects.get(user=self.request.user)
+					shipping_billing_info.billing_address = shipping_billing_info.shipping_address
+					shipping_billing_info.billing_address2 = shipping_billing_info.shipping_address2
+					shipping_billing_info.billing_country = shipping_billing_info.shipping_country
+					shipping_billing_info.billing_zip = shipping_billing_info.shipping_zip
+					shipping_billing_info.save()
+
 				else:
-					#print('User is entering a new billing address')TEST
-					billing_address1 = form.cleaned_data.get(
+					billing_address = form.cleaned_data.get(
 						'billing_address')
 					billing_address2 = form.cleaned_data.get(
 						'billing_address2')
 					billing_country = form.cleaned_data.get(
 						'billing_country')
-					billing_zip = form.cleaned_data.get('billing_zip')
+					billing_zip = form.cleaned_data.get(
+						'billing_zip')
 
-					if is_valid_form([billing_address1, billing_country, billing_zip]):
-						billing_address = UserProfile(
-							user=self.request.user,
-							street_address=billing_address1,
-							apartment_address=billing_address2,
-							country=billing_country,
-							zip_code=billing_zip,
-							address_type='B'
-						)
-						billing_address.save()
+					if is_valid_form([billing_address, billing_country, billing_zip,]):
+						shipping_billing_info = UserProfile.objects.get(user=self.request.user)
+						shipping_billing_info.billing_address = billing_address
+						shipping_billing_info.billing_address2 = billing_address2
+						shipping_billing_info.billing_country = billing_country
+						shipping_billing_info.billing_zip = billing_zip
+						#shipping_billing_info.save()
 
-						order.billing_address = billing_address
+						order.shipping_billing_info = shipping_billing_info
 						order.save()
-
 
 						set_default_billing = form.cleaned_data.get(
 							'set_default_billing')
 						if set_default_billing:
-							billing_address.default = True
-							billing_address.save()
-					
+							user_profile_address = UserProfile.objects.get(user=self.request.user)
+							user_profile_address.billing_address = billing_address
+							user_profile_address.billing_address2 = billing_address2
+							user_profile_address.billing_country = billing_country
+							user_profile_address.billing_zip = billing_zip
+							user_profile_address.save()
+
 					else:
-						message.info(
-							self.request, "Please fill in the required billing address fields")
+						messages.info(
+							self.request, "Please fill in the required shipping address fields")
+						#return redirect('shop:checkout')
 
 
 				payment_option = form.cleaned_data.get('payment_option')
@@ -485,46 +505,32 @@ def Erro404View(request, exception):
 
 @login_required
 def add_to_cart(request, slug):
-	item = get_object_or_404(Product, slug=slug)
-
-	order_item, created = OrderItem.objects.get_or_create(
-												item=item,
-												user=request.user,
-												ordered=False
-	)
-	order_qs = Order.objects.filter(user=request.user, ordered=False)
-
-
-
-	if order_qs.exists():
-		order = order_qs[0]
-		# Check if the order item is in the order
-		if order.items.filter(item__slug=item.slug).exists():
-			order_item.quantity += 1
-			order_item.save() 
-			messages.info(request, "This item quantity was updated.")
-			return redirect("shop:cart")
-		else:
-			order.items.add(order_item)
-			messages.info(request, "This item was added to your cart.")
-			return redirect("shop:cart")
-	else:
-		if request.user.is_authenticated:
-			ordered_date = timezone.now()
-			order = Order.objects.create(
-				user=request.user,
-				ordered_date=ordered_date
-			)
-		else:
-			ordered_date = timezone.now()
-			order = Order.objects.create(
-				user=AnonymousUser(),
-				ordered_date=ordered_date
-			)
-
-		order.items.add(order_item)
-		messages.info(request, "This item was added to your cart.")
-		return redirect("shop:cart")
+    item = get_object_or_404(Product, slug=slug)
+    order_item, created = OrderItem.objects.get_or_create(
+        item=item,
+        user=request.user,
+        ordered=False
+    )
+    order_qs = Order.objects.filter(user=request.user, ordered=False)
+    if order_qs.exists():
+        order = order_qs[0]
+        # check if the order item is in the order
+        if order.items.filter(item__slug=item.slug).exists():
+            order_item.quantity += 1
+            order_item.save()
+            messages.info(request, "This item quantity was updated.")
+            return redirect("shop:cart")
+        else:
+            order.items.add(order_item)
+            messages.info(request, "This item was added to your cart.")
+            return redirect("shop:cart")
+    else:
+        ordered_date = timezone.now()
+        order = Order.objects.create(
+            user=request.user, ordered_date=ordered_date)
+        order.items.add(order_item)
+        messages.info(request, "This item was added to your cart.")
+        return redirect("shop:cart")
 
 
 @login_required
