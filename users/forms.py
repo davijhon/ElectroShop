@@ -34,11 +34,11 @@ class CustomUserChangeForm(UserChangeForm):
 
 
 class ProfileForm(forms.ModelForm):
-	shipping_address = forms.CharField(widget=forms.TextInput(attrs={
+	shipping_address = forms.CharField(required=False, widget=forms.TextInput(attrs={
 		'placeholder':'Street address',
 		'class': 'form-control',
 	}))
-	shipping_address2 = forms.CharField(widget=forms.TextInput(attrs={
+	shipping_address2 = forms.CharField(required=False, widget=forms.TextInput(attrs={
 		'placeholder':'Apartment, suite, unit etc. (optional)',
 		'class': 'form-control',
 	}))
@@ -47,7 +47,7 @@ class ProfileForm(forms.ModelForm):
 		widget=CountrySelectWidget(attrs={
 			'class': 'custom-select d-block w-100',
 			}))
-	shipping_zip = forms.CharField(widget=forms.TextInput(attrs={
+	shipping_zip = forms.CharField(required=False, widget=forms.TextInput(attrs={
 		'placeholder':'Zip Code',
 		'class': 'form-control',
 	}))
