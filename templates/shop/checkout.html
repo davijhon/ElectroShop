@@ -91,27 +91,22 @@
                         </div>
                       </div>
                     </div>
-
-                    <div class="custom-control custom-checkbox">
-                      <input type="checkbox" class="custom-control-input" name="same_billing_address" id="same_billing_address">
-                      <label class="custom-control-label" for="same_billing_address">Billing address is the same as my shipping address</label>  
-                    </div>
                     <div class="custom-control custom-checkbox">
                       <input type="checkbox" class="custom-control-input" name="set_default_shipping" id="set_default_shipping">
                       <label class="custom-control-label" for="set_default_shipping">Save as default shipping address</label> 
                     </div>
+                    <div class="custom-control custom-checkbox">
+                      <input type="checkbox" class="custom-control-input" name="same_billing_address" id="same_billing_address">
+                      <label class="custom-control-label" for="same_billing_address">Billing address is the same as my shipping address</label>  
+                    </div>
+                  
                   </div>
 
-                    <!-- {% if default_shipping_address %}
-                      <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" name="use_default_shipping" id="use_default_shipping">
-                        <label class="custom-control-label" for="use_default_shipping">Use default shipping address: {{ default_shipping_address.street_address|truncatechars:10 }}</label>
-                      </div>
-                    {% endif %} -->
 
                     <hr>
-                    <h2 class="h3 mb-3 text-black">Billing address</h2>
+                    
                       <div class='hideable_billing_form'>
+                        <h2 class="h3 mb-3 text-black">Billing address</h2>
                         <div class="form-group">
                           <label for="country" class="text-black">Country <span class="text-danger">*</span></label>
                               {{ form.billing_country }}
@@ -148,13 +143,6 @@
                           <label class="custom-control-label" for="set_default_billing">Save as default billing address</label> 
                         </div>
                       </div>
-
-                    <!-- {% if default_billing_address %}
-                      <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input" name="use_default_billing" id="use_default_billing"> 
-                        <label class="custom-control-label" for="use_default_billing">Use default billing address: {{ default_billing_address.street_address|truncatechars:10 }}</label>
-                      </div>
-                    {% endif %} -->
 
                   </div>
                 </div>
@@ -235,21 +223,12 @@
 
 {% block extra_scripts %}
 <script>
-var hideable_shipping_form = $('.hideable_shipping_form');
 var hideable_billing_form = $('.hideable_billing_form');
 
-var use_default_shipping = document.querySelector("input[name=use_default_shipping]");
-var use_default_billing = document.querySelector("input[name=use_default_billing]");
+var same_address_billing = document.querySelector("input[name=same_billing_address]");
 
-use_default_shipping.addEventListener('change', function() {
-  if (this.checked) {
-    hideable_shipping_form.hide();
-  } else {
-    hideable_shipping_form.show();
-  }
-})
 
-use_default_billing.addEventListener('change', function() {
+same_address_billing.addEventListener('change', function() {
   if (this.checked) {
     hideable_billing_form.hide();
   } else {
@@ -259,3 +238,4 @@ use_default_billing.addEventListener('change', function() {
 
 </script>
 {% endblock extra_scripts %}
+
