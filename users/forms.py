@@ -71,10 +71,9 @@ class ProfileForm(forms.ModelForm):
 		'class': 'form-control',
 	}))
 	
-	same_address_billing = forms.BooleanField(required=False)
+	same_billing_address = forms.BooleanField(required=False)
 	
 	set_default_shipping = forms.BooleanField(required=False)
-	set_default_billing = forms.BooleanField(required=False)
 
 	payment_option = forms.ChoiceField(required=False,
 		widget=forms.RadioSelect, choices=PAYMENT_CHOICES)
@@ -83,6 +82,6 @@ class ProfileForm(forms.ModelForm):
 		model = UserProfile
 		fields = ('shipping_address', 'shipping_address2', 'shipping_country', 'shipping_zip',
 					'billing_address', 'billing_address2', 'billing_country', 'billing_zip',
-					'same_address_billing', 'payment_option')
+					'same_billing_address', 'payment_option')
 
 

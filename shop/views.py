@@ -333,19 +333,13 @@ class CheckoutView(View):
 					order.save()
 
 					payment_option = form.cleaned_data.get('payment_option')
-					# if payment_option == 'S':
-					# 	return redirect('shop:payment', payment_option='stripe')
-					# elif payment_option == 'P':
-					# 	return redirect('shop:payment', payment_option='paypal')
-					# else:
-					# 	messages.warning(self.request, "Invalid payment option selected")
-					# 	return redirect('shop:checkout')
+
 				elif user_profile_address and len(order_items) == 0:
 					messages.warning(self.request, "You do not have an active order")
 					return redirect("shop:cart")
 
 
-				else:
+				if user_profile_address == False and len(order_items) != 0:
 					print("User is entering a new shipping address")
 					shipping_address = form.cleaned_data.get(
 						'shipping_address')
@@ -362,15 +356,18 @@ class CheckoutView(View):
 						shipping_billing_info.shipping_address2 = shipping_address2
 						shipping_billing_info.shipping_country = shipping_country
 						shipping_billing_info.shipping_zip = shipping_zip
-						#shipping_billing_info.save() 
 
 						order.shipping_billing_info = shipping_billing_info
 						order.save()
 
 					else:
 						messages.info(
-							self.request, "Please fill in the required shipping address fields")
+							self.request, "Please fill in the required shipping address fields 1)")
 						return redirect('shop:checkout')
+				
+				elif user_profile_address == False and len(order_items) == 0:
+					messages.warning(self.request, "You do not have an active order")
+					return redirect("shop:cart")
 
 
 				same_billing_address = form.cleaned_data.get(
@@ -410,7 +407,6 @@ class CheckoutView(View):
 						shipping_billing_info.billing_address2 = billing_address2
 						shipping_billing_info.billing_country = billing_country
 						shipping_billing_info.billing_zip = billing_zip
-						#shipping_billing_info.save()
 
 						order.shipping_billing_info = shipping_billing_info
 						order.save()
@@ -427,8 +423,8 @@ class CheckoutView(View):
 
 					else:
 						messages.info(
-							self.request, "Please fill in the required shipping address fields")
-						#return redirect('shop:checkout')
+							self.request, "Please fill in the required shipping address fields 2)")
+						return redirect('shop:checkout')
 
 
 				payment_option = form.cleaned_data.get('payment_option')

@@ -30,7 +30,7 @@ class UserProfile(models.Model):
 	billing_country = CountryField(multiple=False, blank=True, null=True)
 	billing_zip = models.CharField(max_length=255, blank=True, null=True)
 
-	same_address_billing = models.BooleanField(default=False)
+	same_billing_address = models.BooleanField(default=False)
 	payment_option = models.CharField(max_length=1, choices=PAYMENT_CHOICES, blank=True, null=True)
 
 	def __str__(self):
