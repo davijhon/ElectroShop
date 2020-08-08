@@ -45,7 +45,7 @@
 								{% if profile %}
 									<li><a href="{% url 'shop:profile' user.pk %}"><span class="icon icon-person"></span></a></li>
 								{% else %}
-								<li><a href="{% url 'shop:profile' user.pk %}"><span class="icon icon-person"></span></a></li>
+									<li><a href="{% url 'shop:profile' user.pk %}"><span class="icon icon-person"></span></a></li>
 								{% endif %}
 								<li><a href="#"><span class="icon icon-heart-o"></span></a></li>
 								<li>
@@ -63,24 +63,24 @@
 								<li class="d-inline-block d-md-none ml-md-0"><a href="#" class="site-menu-toggle js-menu-toggle"><span class="icon-menu"></span></a></li>
 							</ul>
 						  {% else %}
-							<ul>
-								<li><a href="{% url 'account_login' %}"><span class="icon icon-person"></span></a></li>
-								<li><a href="{% url 'account_login' %}"><span class="icon icon-heart-o"></span></a></li> 
-								<li>
-									<a href="{% url 'shop:cart' %}" class="site-cart mr-5">
-									<span class="icon icon-shopping_cart"></span>
-									<span class="count">{{ request.user|cart_item_count }}</span>    
-									</a>         
-								</li>
-								<li>
-								<form class="form-inline ml-auto">
-										<a href="{% url 'account_login' %}" class="btn btn-outline-secondary">Log In</a>
-										<a href="{% url 'account_signup' %}" class="btn btn-primary text-white ml-2">Sign up</a>
-									</form>
-								</li>
-								<li class="d-inline-block d-md-none ml-md-0"><a href="#" class="site-menu-toggle js-menu-toggle"><span class="icon-menu"></span></a></li>
-							</ul>	
-						  {% endif %} 
+						  <ul>
+							<li><a href="{% url 'account_login' %}"><span class="icon icon-person"></span></a></li>
+							<li><a href="{% url 'account_login' %}"><span class="icon icon-heart-o"></span></a></li> 
+							<li>
+								<a href="{% url 'shop:cart' %}" class="site-cart mr-5">
+								<span class="icon icon-shopping_cart"></span>
+								<span class="count">{{ request.user|cart_item_count }}</span>    
+								</a>         
+							</li>
+							<li>
+							<form class="form-inline ml-auto">
+									<a href="{% url 'account_login' %}" class="btn btn-outline-secondary">Log In</a>
+									<a href="{% url 'account_signup' %}" class="btn btn-primary text-white ml-2">Sign up</a>
+								</form>
+							</li>
+							<li class="d-inline-block d-md-none ml-md-0"><a href="#" class="site-menu-toggle js-menu-toggle"><span class="icon-menu"></span></a></li>
+						</ul>	
+					  {% endif %} 
 						  <!-- <li class="d-inline-block d-md-none ml-md-0"><a href="#" class="site-menu-toggle js-menu-toggle"><span class="icon-menu"></span></a></li> -->	
 					  </div> 
 					</div>
@@ -148,19 +148,19 @@
 		
 		</div>
 		  <!-- <script src="https://kit.fontawesome.com/5d6a0adb14.js" crossorigin="anonymous"></script>   -->
-		  <!-- <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>    -->
+		  <script src="{% static 'js/jquery-3.3.1.min.js' %}"></script>   
 		  <script src="{% static 'js/jquery.min.js' %}"></script> 
 		  <script src="{% static 'js/jquery-ui.js' %}"></script> 
 		  <script src="{% static 'js/popper.min.js' %}"></script>
 		  <script src="{% static 'js/bootstrap.min.js' %}"></script>
-		  <script src="{% static 'js/owl.carousel.min.js' %}"></script>
+		  <!-- <script src="{% static 'js/owl.carousel.min.js' %}"></script> -->
 		  <script src="{% static 'js/jquery.magnific-popup.min.js' %}"></script>
 		  <script src="{% static 'js/aos.js' %}"></script>
 		  <script src="{% static 'js/main.js' %}"></script>
-		  <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/2.0.5/waypoints.min.js"></script>
+		  <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/2.0.5/waypoints.min.js"></script> -->
 		  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
 		  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-		  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script> -->
+		  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
 
 		  <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
 		  <!-- <script src="{% static 'js/jquery.waypoints.min.js' %}"></script> -->
