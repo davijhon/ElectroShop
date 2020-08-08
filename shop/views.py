@@ -138,7 +138,7 @@ class ProfilePageView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 		try:
 			same_address_billing = UserProfile.objects.filter(
 				user=self.request.user,
-				same_address_billing=True
+				same_billing_address=True
 			)
 
 			if same_address_billing.exists():
@@ -148,7 +148,7 @@ class ProfilePageView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
 			else:
 				same_address_billing = UserProfile.objects.filter(
 					user=self.request.user,
-					same_address_billing=False
+					same_billing_address=False
 				)
 				context.update(
 					{'same_address_for_billing': same_address_billing[0]})
