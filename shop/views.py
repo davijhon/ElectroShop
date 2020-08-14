@@ -1,5 +1,8 @@
 from django.conf import settings
 from django.urls import reverse_lazy
+from django.core import mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 #from django.views.decorators.cache import cache_page
 from django.contrib.auth.models import AnonymousUser
@@ -58,8 +61,17 @@ def consulta(id):
 	except:
 		return None
 
+def sending_order_email(user):
+	try:
+		subject = 'Test Order Email'
+		html_message = render_to_string('shop/order_email.html')
+		plain_message = strip_tags(html_message)
+		from_email = settings.DEFAULT_FROM_EMAIL
+		to = user.email
 
-
+		mail.send_mail(subject, plain_message, from_email, [to], html_message=html_message)
+	except:
+		print('Message not sended')
 
 def AdminOrderDetail(request, order_id):
 	order = get_object_or_404(Order, id=order_id)
@@ -193,12 +205,13 @@ class ProductDetailView(DetailView):
 
 
 class PaymentView(View):
-	def get(self, *args, **kwargs):
+	def get(self, *args, payment_option, **kwargs):
 		order = Order.objects.get(user=self.request.user, ordered=False) # Para dar dinamismo, ver min:2:35:41 // https://www.youtube.com/watch?v=YZvRrldjf1Y&t=9279s
 
 			
 		context = {
-			'order': order 
+			'order': order,
+			'payment_option': payment_option, 
 		}
 		return render(self.request, 'shop/payment.html', context)
 
@@ -233,6 +246,7 @@ class PaymentView(View):
 			order.payment = payment
 			# TODO: reference Code
 			order.ref_code = create_ref_code()
+			sending_order_email(self.request.user)
 			order.save()
 
 			messages.success(self.request, "Your order was successful!")
@@ -281,6 +295,33 @@ class PaymentView(View):
 			return redirect("/")
 
 
+def payment_complete(request):
+	body = json.loads(request.body)
+	order = Order.objects.get(
+		user=request.user, ordered=False, id=body['orderID']
+	)
+
+	payment = Payment(
+		user=request.user,
+		charge_id=body['payID'],
+		amount=order.get_total()
+	)
+	payment.save()
+
+	# Assign the paymet to the order
+	order_items = order.items.all()
+	order_items.update(ordered=True)
+	for item in order_items:
+		item.save()
+
+	order.ordered = True
+	order.payment = payment
+	# TODO: reference Code
+	sending_order_email(self.request.user)
+	order.ref_code = create_ref_code()
+	order.save()
+
+
 class CheckoutView(View):
 
 	def get(self, *args, **kwargs):
@@ -319,7 +360,7 @@ class CheckoutView(View):
 			order = Order.objects.get(user=self.request.user, ordered=False)
 			user_profile_address = UserProfile.objects.get(user=self.request.user)
 
-			if user_profile_address.shipping_address == None:
+			if user_profile_address.shipping_address == None: #¿User Have Profile?
 				user_profile_address = False
 
 			if form.is_valid():
@@ -329,7 +370,7 @@ class CheckoutView(View):
 					# If user have address info in his profile
 					print('User will be used their profile info')
 					order.shipping_billing_info = user_profile_address
-					order.user_billing_same_shipping = user_profile_address.same_address_billing
+					order.user_billing_same_shipping = user_profile_address.same_billing_address
 					order.save()
 
 					payment_option = form.cleaned_data.get('payment_option')
@@ -339,7 +380,7 @@ class CheckoutView(View):
 					return redirect("shop:cart")
 
 
-				if user_profile_address == False and len(order_items) != 0:
+				if user_profile_address == False and len(order_items) != 0: #if user not have profile, and have order
 					print("User is entering a new shipping address")
 					shipping_address = form.cleaned_data.get(
 						'shipping_address')
@@ -384,12 +425,29 @@ class CheckoutView(View):
 					user_profile_address.save()
 				
 				if same_billing_address:
-					shipping_billing_info = UserProfile.objects.get(user=self.request.user)
-					shipping_billing_info.billing_address = shipping_billing_info.shipping_address
-					shipping_billing_info.billing_address2 = shipping_billing_info.shipping_address2
-					shipping_billing_info.billing_country = shipping_billing_info.shipping_country
-					shipping_billing_info.billing_zip = shipping_billing_info.shipping_zip
-					shipping_billing_info.save()
+					if set_default_shipping:
+						# if set shipping addres for default, save in profile, and save in order, else just save in order.
+						shipping_billing_info = UserProfile.objects.get(user=self.request.user)
+						shipping_billing_info.billing_address = shipping_billing_info.shipping_address
+						shipping_billing_info.billing_address2 = shipping_billing_info.shipping_address2
+						shipping_billing_info.billing_country = shipping_billing_info.shipping_country
+						shipping_billing_info.billing_zip = shipping_billing_info.shipping_zip
+						shipping_billing_info.save()
+
+						order.shipping_billing_info = shipping_billing_info
+						order.save()
+
+					else:
+						shipping_billing_info = UserProfile.objects.get(user=self.request.user)
+						shipping_billing_info.billing_address = shipping_billing_info.shipping_address
+						shipping_billing_info.billing_address2 = shipping_billing_info.shipping_address2
+						shipping_billing_info.billing_country = shipping_billing_info.shipping_country
+						shipping_billing_info.billing_zip = shipping_billing_info.shipping_zip
+
+						order.shipping_billing_info = shipping_billing_info
+						order.save()
+					
+					payment_option = form.cleaned_data.get('payment_option')
 
 				else:
 					billing_address = form.cleaned_data.get(
@@ -421,7 +479,7 @@ class CheckoutView(View):
 							user_profile_address.billing_zip = billing_zip
 							user_profile_address.save()
 
-					else:
+					elif is_valid_form == False and same_billing_address == False:
 						messages.info(
 							self.request, "Please fill in the required shipping address fields 2)")
 						return redirect('shop:checkout')
@@ -430,9 +488,9 @@ class CheckoutView(View):
 				payment_option = form.cleaned_data.get('payment_option')
 
 				if payment_option == 'S':
-					return redirect('shop:payment', payment_option='stripe')
+					return redirect('shop:payment', payment_option='Stripe')
 				elif payment_option == 'P':
-					return redirect('shop:payment', payment_option='paypal')
+					return redirect('shop:payment', payment_option='PayPal')
 				else:
 					messages.warning(self.request, "Invalid payment option selected")
 					return redirect('shop:checkout')
