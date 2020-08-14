@@ -1,4 +1,5 @@
 import os
+from decouple import config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -9,7 +10,8 @@ ENVIRONMENT = os.environ.get('ENVIRONMENT', default='local')
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['SECRET_KEY']
+#SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = config('SECRET_KEY')
 
 # Application definition
 
@@ -31,6 +33,8 @@ INSTALLED_APPS = [
     'sorl.thumbnail',
     'crispy_forms',
     'django_countries',
+    'anymail',
+    'formtools',
 
     #Local Apps
     'users.apps.UsersConfig',
@@ -145,41 +149,43 @@ ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 
-DEFAULT_FROM_EMAIL = 'davidalejandrodand@gmail.com'
 
 
 # STRIPE
-STRIPE_TEST_PUBLISHABLE_KEY = os.environ['STRIPE_TEST_PUBLISHABLE_KEY']
-STRIPE_TEST_SECRET_KEY = os.environ['STRIPE_TEST_SECRET_KEY']
+STRIPE_TEST_PUBLISHABLE_KEY = config('STRIPE_TEST_PUBLISHABLE_KEY')
+STRIPE_TEST_SECRET_KEY = config('STRIPE_TEST_SECRET_KEY')
 
-# EMAIL BACKEND 'django.core.mail.backends.smtp.EmailBackend'
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+# EMAIL BACKEND
+
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-#EMAIL_HOST = 'smtp.sendgrid.net'
 
-#EMAIL_HOST_USER = 'apikey'
+DEFAULT_FROM_EMAIL = 'davidalejandrodand@gmail.com'
 
-#EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
+# EMAIL_HOST = 'smtp.sendgrid.net'
 
-#EMAIL_PORT = 587
+# EMAIL_HOST_USER = 'apikey'
 
-#EMAIL_USE_TLS = True
+# EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
+# EMAIL_PORT = 587
+
+# EMAIL_USE_TLS = True
 
 # production
-if ENVIRONMENT == 'production':
-    SECURE_BROWSER_XSS_FILTER = True
-    X_FRAME_OPTIONS = 'DENY'
-    SECURE_SSL_REDIRECT = True
-    SECURE_HSTS_SECONDS = 3600 
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True 
-    SECURE_HSTS_PRELOAD = True 
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    SESSION_COOKIE_SECURE = True 
-    CSRF_COOKIE_SECURE = True
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# if ENVIRONMENT == 'production':
+#     SECURE_BROWSER_XSS_FILTER = True
+#     X_FRAME_OPTIONS = 'DENY'
+#     SECURE_SSL_REDIRECT = True
+#     SECURE_HSTS_SECONDS = 3600 
+#     SECURE_HSTS_INCLUDE_SUBDOMAINS = True 
+#     SECURE_HSTS_PRELOAD = True 
+#     SECURE_CONTENT_TYPE_NOSNIFF = True
+#     SESSION_COOKIE_SECURE = True 
+#     CSRF_COOKIE_SECURE = True
+#     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 CRISPY_CLASS_CONVERTERS = {'textinput': "form-control",
