@@ -13,6 +13,7 @@ from .views import (
     PaymentView,
     ProfilePageView,
     AdminOrderDetail,
+    payment_complete,
 )
 
 
@@ -31,6 +32,7 @@ urlpatterns = [
     path('produtc-detail/<slug:slug>/', ProductDetailView.as_view(), name='produtc-detail'), 
     path('remove-item-from-cart/<slug>', remove_single_item_from_cart, name='remove-single-item-from-cart'),
     path('payment/<payment_option>/', PaymentView.as_view(), name='payment'),
+    path('payment-complete', payment_complete, name='payment_complete'),
     path('admin/order/<int:order_id>/', AdminOrderDetail, name='admin_order_detail')
 
 ]
