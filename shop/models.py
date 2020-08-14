@@ -6,6 +6,11 @@ from django.urls import reverse
 
 from users.models import UserProfile
 
+PAYMENT_CHOICES = (
+	('S', 'Stripe'),
+	('P', 'PayPal'),
+)
+
 
 
 class Promo(models.Model):
@@ -153,6 +158,7 @@ class Order(models.Model):
 		'Payment', on_delete=models.SET_NULL, blank=True, null=True,
 	)
 
+	payment_option = models.CharField(max_length=1, choices=PAYMENT_CHOICES )
 	user_billing_same_shipping = models.BooleanField(default=False)
 	being_delivered = models.BooleanField(default=False)
 	received = models.BooleanField(default=False)
