@@ -14,6 +14,8 @@ urlpatterns = [
 
 ]
 
+# ERROR 404- NOT FOUND PAGE
+handler404 = 'shop.views.Erro404View'
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

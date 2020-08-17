@@ -30,9 +30,10 @@ from .models import (
     Order,
     Payment,
     Refund,
+	Promo,
 )
 
-from .forms import RefundForm
+from .forms import RefundForm, CartAddProductForm
 from users.models import UserProfile
 from users.forms import ProfileForm
 
@@ -82,6 +83,9 @@ def AdminOrderDetail(request, order_id):
 		{'order': order,
 		'user_info': user_info,})
 
+def Erro404View(request, exception):
+	return render(request, 'shop/404.html')
+
 
 
 #@staff_member_required
@@ -109,6 +113,7 @@ class HomePageView(ListView):
 	def get_context_data(self, **kwargs):
 		categories = Category.objects.all().order_by('id')[:3]
 		featured = Product.objects.filter(featured=True,)[:7]
+		promo = Promo.objects.filter(available=True)
 		try:
 			profile = UserProfile.objects.get_or_create(user=self.request.user)
 		except:
@@ -118,6 +123,7 @@ class HomePageView(ListView):
 		context['categories'] = categories
 		context['featured'] = featured
 		context['profile'] = profile
+		context['promo'] = promo
 		return context
 
 
@@ -199,8 +205,10 @@ class ProductDetailView(DetailView):
 
 	def get_context_data(self, **kwargs):
 		featured = Product.objects.filter(featured=True,)[:7]
+		cart_product_form = CartAddProductForm()
 		context = super().get_context_data(**kwargs)
 		context['featured'] = featured
+		context['cart_product_form'] = cart_product_form
 		return context
 
 
@@ -582,6 +590,11 @@ def add_to_cart(request, slug):
         ordered_date = timezone.now()
         order = Order.objects.create(
             user=request.user, ordered_date=ordered_date)
+		# form = CartAddProductForm(request.POST)
+		# if form.is_valid():
+		# quantity = form.cleaned_data.get('quantity')
+		# order_item.quantity = quantity
+		# order_item.save()
         order.items.add(order_item)
         messages.info(request, "This item was added to your cart.")
         return redirect("shop:cart")

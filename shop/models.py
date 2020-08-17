@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django_countries.fields import CountryField
 from django.db import models 
 from django.urls import reverse
-# MPTT.FIELDS IMPORT TreeForeignKey -> pip install django-mptt
+from mptt.models import MPTTModel, TreeForeignKey
 
 from users.models import UserProfile
 
@@ -25,9 +25,10 @@ class Promo(models.Model):
 		return self.name
 
 
-#              MPTT.Models
+
 class Category(models.Model):
-	# parent = TreeForeignKey('self', blank=True, null=True, related_name='childen', on_delete=models.CASCADE)
+	#parent = TreeForeignKey('self', blank=True, null=True, related_name='children', on_delete=models.CASCADE)
+	#product = models.ForeignKey()
 	name = models.CharField(max_length=30)
 	description = models.CharField(max_length=200)
 	image = models.ImageField(blank=True, upload_to='images/')
@@ -35,25 +36,28 @@ class Category(models.Model):
 	created = models.DateTimeField(auto_now_add=True)
 	updated = models.DateTimeField(auto_now=True)
 
+
 	class Meta:
 		ordering = ('-name',)
 		verbose_name = 'category'
 		verbose_name_plural = 'categories'
-		
+
+
 	def __str__(self):
 		return self.name
 	
 	def get_absolute_url(self):
 		return reverse('shop:categories', kwargs={'slug': self.slug})
+
+	# class MPTTMeta:
+	# 	order_insertion_by = ['name']
 	
 
 class Brand(models.Model):
 	name = models.CharField(max_length=100)
 	image = models.ImageField(blank=True, upload_to='images/')
 	slug = models.SlugField(max_length=100, unique=True)
-	category = models.ForeignKey(Category,
-									related_name='brands',
-									on_delete=models.CASCADE)
+	category = models.ManyToManyField(Category)
 
 	class Meta:
 		ordering = ('name',)
@@ -91,8 +95,8 @@ class Product(models.Model):
 									related_name='products',
 									on_delete=models.CASCADE)
 	brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
-	name = models.CharField(max_length=200, db_index=True)
-	slug = models.SlugField(max_length=200, db_index=True)
+	name = models.CharField(max_length=200, db_index=True, unique=True)
+	slug = models.SlugField(max_length=200, db_index=True, unique=True)
 	image = models.ImageField(upload_to='products/%Y/%m/%d',
 							blank=True)
 	description = models.TextField(blank=True)

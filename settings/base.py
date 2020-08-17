@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'django_countries',
     'anymail',
     'formtools',
+    'mptt',
 
     #Local Apps
     'users.apps.UsersConfig',
