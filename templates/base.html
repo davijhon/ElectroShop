@@ -89,19 +89,6 @@
 				  </div>
 				</div>
 			  </div>
-			  {% load mptt_tags %}
-				<ul>
-					{% recursetree categories %}
-						<li>
-							{{ node.name }}
-							{% if not node.is_leaf_node %}
-								<ul class="children">
-									{{ children }}
-								</ul>
-							{% endif %}
-						</li>
-					{% endrecursetree %}
-				</ul>
 			  
 			  <nav class="site-navigation text-right text-md-center" role="navigation">
 				<div class="container">
