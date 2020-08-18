@@ -1,9 +1,9 @@
 from .base import *
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['https://electronixshop.herokuapp.com/']
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
